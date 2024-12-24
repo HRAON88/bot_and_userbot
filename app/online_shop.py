@@ -229,7 +229,6 @@ def process_response_step(message):
         if str(message.from_user.id) != str(ADMIN_ID):
             return
 
-        # Получаем сохраненный триггер
         trigger = user_data[message.from_user.id]['trigger']
         response = message.text
 
@@ -341,7 +340,6 @@ async def handle_user_message(client, message):
                     conn.commit()
                     logger.info(f"New user registered: {username}")
 
-                # Проверка триггеров
                 cur.execute("SELECT trigger_word, response_text FROM triggers")
                 triggers = cur.fetchall()
 
