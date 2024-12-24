@@ -44,12 +44,40 @@ jobs:
         PGPASSWORD: ${{ secrets.DB_PASSWORD }}
       run: |
         psql -h localhost -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }} -c "
+        -- Users table
         CREATE TABLE IF NOT EXISTS users (
+            user_id BIGINT PRIMARY KEY,
+            username TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+
+        -- Triggers table
+        CREATE TABLE IF NOT EXISTS triggers (
             id SERIAL PRIMARY KEY,
-            user_id BIGINT NOT NULL UNIQUE,
-            username VARCHAR(255),
-            registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );"
+            trigger_word TEXT NOT NULL,
+            response_text TEXT NOT NULL
+        );
+
+        -- Scheduled messages table
+        CREATE TABLE IF NOT EXISTS scheduled_messages (
+            id SERIAL PRIMARY KEY,
+            user_id BIGINT,
+            message_text TEXT,
+            scheduled_time TIMESTAMP
+        );
+
+        -- Insert test data for triggers
+        INSERT INTO triggers (trigger_word, response_text) 
+        VALUES 
+            ('тест', 'Это тестовый ответ'),
+            ('привет', 'Здравствуйте!'),
+            ('помощь', 'Чем могу помочь?')
+        ON CONFLICT DO NOTHING;
+
+        -- Insert test user if needed
+        INSERT INTO users (user_id, username)
+        VALUES (123456789, 'test_user')
+        ON CONFLICT DO NOTHING;"
 
     - name: Run tests
       env:
