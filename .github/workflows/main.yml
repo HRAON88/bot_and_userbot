@@ -5,7 +5,7 @@ on:
     branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
-  workflow_dispatch:  # Добавляет кнопку ручного запуска
+  workflow_dispatch:
 
 jobs:
   test:
@@ -38,6 +38,18 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+
+    - name: Initialize Database
+      env:
+        PGPASSWORD: ${{ secrets.DB_PASSWORD }}
+      run: |
+        psql -h localhost -U ${{ secrets.DB_USER }} -d ${{ secrets.DB_NAME }} -c "
+        CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            user_id BIGINT NOT NULL UNIQUE,
+            username VARCHAR(255),
+            registration_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );"
 
     - name: Run tests
       env:
