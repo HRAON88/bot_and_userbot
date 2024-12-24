@@ -13,14 +13,13 @@ def get_db_connection():
         connection.autocommit = True
         return connection
     except Exception as e:
-        logger.error(f"Database connection error: {str(e)}")
+        logger.error(f"Ошибка в подключение к базе данных: {str(e)}")
         return None
 
 def check_database():
     try:
         conn = get_db_connection()
         if not conn:
-            logger.error("❌ Cannot connect to database")
             return False
 
         with conn.cursor() as cur:
@@ -34,13 +33,11 @@ def check_database():
             missing_tables = [table for table in required_tables if table not in existing_tables]
 
             if missing_tables:
-                logger.error(f"❌ Missing tables: {', '.join(missing_tables)}")
                 return False
 
             return True
 
     except Exception as e:
-        logger.error(f"❌ Error during database check: {str(e)}")
         return False
     finally:
         if 'conn' in locals() and conn:
@@ -95,11 +92,10 @@ def fix_database_structure():
                 ''')
 
                 conn.commit()
-                logger.info("Database structure fixed successfully")
+                logger.info("Успешно изменена структура бд")
             conn.close()
             return True
     except Exception as e:
-        logger.error(f"Error fixing database structure: {str(e)}")
         return False
 
 
@@ -134,9 +130,8 @@ def init_database():
                 ''')
 
                 conn.commit()
-                logger.info("Database tables created successfully")
             conn.close()
             return True
     except Exception as e:
-        logger.error(f"Database initialization error: {str(e)}")
+        logger.error(f"Ошибка в инициализации бд: {str(e)}")
         return False

@@ -99,12 +99,12 @@ def check_config():
     missing_vars = [var for var, value in required_vars.items() if not value]
 
     if missing_vars:
-        logger.error(f"Missing required configuration variables: {', '.join(missing_vars)}")
+        logger.error(f"Пропущено: {', '.join(missing_vars)}")
         return False
 
-    logger.info("Configuration check passed successfully")
+    logger.info("Все конфигурации загружены")
     return True
 
 if not check_config():
-    logger.error("Invalid configuration. Please check your environment variables.")
+    logger.error("Ошибка в конфигурации.")
     raise ValueError("Invalid configuration")
