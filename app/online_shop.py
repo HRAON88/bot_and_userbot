@@ -78,7 +78,6 @@ def process_trigger_step(message):
             return
 
         trigger = message.text
-        # Сохраняем триггер во временное хранилище
         user_data[message.from_user.id] = {'trigger': trigger}
 
         msg = control_bot.reply_to(message, "Теперь отправьте текст ответа:")
@@ -93,7 +92,7 @@ def process_response_step(message):
         if str(message.from_user.id) != str(ADMIN_ID):
             return
 
-        # Получаем сохраненный триггер
+
         trigger = user_data[message.from_user.id]['trigger']
         response = message.text
 
@@ -113,7 +112,6 @@ def process_response_step(message):
                 logger.error(f"Error adding trigger: {e}")
             finally:
                 conn.close()
-                # Очищаем временные данные
                 if message.from_user.id in user_data:
                     del user_data[message.from_user.id]
     except Exception as e:
@@ -217,7 +215,6 @@ def process_trigger_step(message):
             return
 
         trigger = message.text
-        # Сохраняем триггер во временное хранилище
         user_data[message.from_user.id] = {'trigger': trigger}
 
         msg = control_bot.reply_to(message, "Теперь отправьте текст ответа:")
@@ -252,7 +249,6 @@ def process_response_step(message):
                 logger.error(f"Error adding trigger: {e}")
             finally:
                 conn.close()
-                # Очищаем временные данные
                 if message.from_user.id in user_data:
                     del user_data[message.from_user.id]
     except Exception as e:
@@ -323,7 +319,6 @@ def delete_trigger(message):
 
 
 async def handle_user_message(client, message):
-    """Обработка сообщений пользователя в юзерботе"""
     try:
         user_id = message.from_user.id
         username = message.from_user.username
@@ -335,7 +330,6 @@ async def handle_user_message(client, message):
 
         try:
             with conn.cursor() as cur:
-                # Проверка существования пользователя
                 cur.execute("SELECT user_id FROM users WHERE user_id = %s", (user_id,))
                 user_exists = cur.fetchone()
 
@@ -356,7 +350,6 @@ async def handle_user_message(client, message):
 
                 for trigger_word, response_text in triggers:
                     if trigger_word.lower() in message_text:
-                        # Используем send_message вместо reply для совместимости с тестами
                         await client.send_message(user_id, response_text)
                         trigger_found = True
                         break
@@ -373,7 +366,7 @@ async def handle_user_message(client, message):
 
     except Exception as e:
         logger.error(f"Error in handle_user_message: {e}")
-        raise  # Добавляем raise для правильной обработки ошибок в тестах
+        raise
 
 
 @control_bot.message_handler(commands=['schedule_broadcast'])
@@ -483,7 +476,6 @@ def cancel_broadcast(message):
 
 
 async def check_broadcasts():
-    """Проверка и выполнение запланированных рассылок"""
     try:
         conn = get_db_connection()
         if conn:
@@ -503,7 +495,7 @@ async def check_broadcasts():
 
                         for (user_id,) in users:
                             try:
-                                # Используем общий интерфейс для отправки сообщений
+
                                 if hasattr(userbot, 'send_message'):
                                     await userbot.send_message(user_id, message_text)
                                 await asyncio.sleep(0.1)
@@ -519,7 +511,7 @@ async def check_broadcasts():
                 conn.close()
     except Exception as e:
         logger.error(f"Error in check_broadcasts: {e}")
-        raise  # Добавляем raise для правильной обработки ошибок в тестах
+        raise
 async def start_userbot():
     try:
         logger.info("Starting userbot...")
@@ -531,7 +523,6 @@ async def start_userbot():
         await userbot.start()
         logger.info("Userbot started successfully")
 
-        # Запускаем проверку рассылок
         asyncio.create_task(check_broadcasts())
 
         me = await userbot.get_me()
@@ -553,7 +544,6 @@ def run_userbot():
         logger.error(traceback.format_exc())
 
 def run_control_bot():
-    """Запуск контрольного бота"""
     logger.info("Starting control bot...")
     while True:
         try:
@@ -564,11 +554,10 @@ def run_control_bot():
             time.sleep(3)
 
 def main():
-    """Основная функция"""
     try:
         logger.info("Starting application...")
 
-        # Проверка базы данных при запуске
+
         logger.info("Performing initial database check...")
         if not check_database():
             logger.info("Initial database check failed, attempting to fix...")
@@ -579,13 +568,13 @@ def main():
                 logger.error("Database check failed after fixing")
                 return
 
-        # Запускаем контрольного бота в отдельном потоке
+
         control_thread = Thread(target=run_control_bot)
         control_thread.daemon = True
         control_thread.start()
         logger.info("Control bot thread started")
 
-        # Запускаем юзербота в основном потоке
+
         logger.info("Starting userbot in main thread...")
         run_userbot()
 

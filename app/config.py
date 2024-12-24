@@ -23,26 +23,23 @@ from telebot.storage import StateMemoryStorage
 from telebot import TeleBot
 from pyrogram import Client
 
-# Загрузка переменных окружения
+
 load_dotenv()
 
-# Основные настройки
+
 BOT_TOKEN = os.getenv('BOT_TOKEN', 'try')
 ADMIN_ID = int(os.getenv('ADMIN_ID', 'try'))
 API_ID = int(os.getenv('API_ID', 'try'))
 API_HASH = os.getenv('API_HASH', 'try')
 SESSION_STRING = os.getenv('SESSION_STRING',
 'try')
-# Настройки базы данных
-# DB_NAME = os.getenv('DB_NAME', 'userbot_db')
-# DB_USER = os.getenv('DB_USER', 'postgres')
-# DB_PASSWORD = os.getenv('DB_PASSWORD', 'try')
-# DB_HOST = os.getenv('DB_HOST', 'localhost')
-DB_NAME = 'userbot_db'
-DB_USER = 'postgres'
-DB_PASSWORD = '778848vlados'
-DB_HOST = 'localhost'
-# Настройка логирования
+
+DB_NAME = os.getenv('DB_NAME', 'userbot_db')
+DB_USER = os.getenv('DB_USER', 'postgres')
+DB_PASSWORD = os.getenv('DB_PASSWORD', 'try')
+DB_HOST = os.getenv('DB_HOST', 'localhost')
+
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -51,23 +48,22 @@ logging.basicConfig(
     ]
 )
 
-# Отключение лишних логов
+
 for logger_name in ['pyrogram', 'telebot', 'urllib3', 'asyncio', 'schedule']:
     logging.getLogger(logger_name).setLevel(logging.WARNING)
 
-# Создаем логгер для приложения
+
 logger = logging.getLogger(__name__)
 
-# Временное хранилище
+
 user_data = {}
 
-# Применяем nest_asyncio
+
 nest_asyncio.apply()
 
 
-# Инициализация ботов
+
 def create_control_bot():
-    """Создание экземпляра контрольного бота"""
     return TeleBot(
         BOT_TOKEN,
         parse_mode='HTML',
@@ -76,7 +72,6 @@ def create_control_bot():
 
 
 def create_userbot():
-    """Создание экземпляра юзербота"""
     return Client(
         "my_userbot",
         api_id=API_ID,
@@ -84,15 +79,11 @@ def create_userbot():
         session_string=SESSION_STRING
     )
 
-
-# Создаем экземпляры ботов
 control_bot = create_control_bot()
 userbot = create_userbot()
 
 
-# Проверка конфигурации
 def check_config():
-    """Проверка корректности конфигурации"""
     required_vars = {
         'BOT_TOKEN': BOT_TOKEN,
         'ADMIN_ID': ADMIN_ID,
@@ -114,8 +105,6 @@ def check_config():
     logger.info("Configuration check passed successfully")
     return True
 
-
-# Проверяем конфигурацию при импорте
 if not check_config():
     logger.error("Invalid configuration. Please check your environment variables.")
     raise ValueError("Invalid configuration")

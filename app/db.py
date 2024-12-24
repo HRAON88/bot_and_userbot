@@ -2,7 +2,6 @@ import psycopg2
 
 from app.config import *
 def get_db_connection():
-    """Создает и возвращает соединение с базой данных"""
     try:
         connection = psycopg2.connect(
             dbname=DB_NAME,
@@ -18,7 +17,6 @@ def get_db_connection():
         return None
 
 def check_database():
-    """Проверка состояния базы данных"""
     try:
         conn = get_db_connection()
         if not conn:
@@ -26,14 +24,13 @@ def check_database():
             return False
 
         with conn.cursor() as cur:
-            # Проверка существования таблиц
             cur.execute("""
                 SELECT table_name 
                 FROM information_schema.tables 
                 WHERE table_schema = 'public'
             """)
             existing_tables = [table[0] for table in cur.fetchall()]
-            required_tables = ['users', 'triggers', 'scheduled_messages', 'broadcasts']  # Добавляем broadcasts
+            required_tables = ['users', 'triggers', 'scheduled_messages', 'broadcasts']
             missing_tables = [table for table in required_tables if table not in existing_tables]
 
             if missing_tables:
@@ -52,18 +49,15 @@ def check_database():
 
 
 def fix_database_structure():
-    """Исправляет структуру базы данных"""
     try:
         conn = get_db_connection()
         if conn:
             with conn.cursor() as cur:
-                # Удаляем существующие таблицы
                 cur.execute('DROP TABLE IF EXISTS users CASCADE')
                 cur.execute('DROP TABLE IF EXISTS triggers CASCADE')
                 cur.execute('DROP TABLE IF EXISTS scheduled_messages CASCADE')
-                cur.execute('DROP TABLE IF EXISTS broadcasts CASCADE')  # Добавляем удаление broadcasts
+                cur.execute('DROP TABLE IF EXISTS broadcasts CASCADE')
 
-                # Создаем таблицы заново с правильной структурой
                 cur.execute('''
                     CREATE TABLE users (
                         user_id BIGINT PRIMARY KEY,
@@ -89,7 +83,7 @@ def fix_database_structure():
                     )
                 ''')
 
-                # Добавляем создание таблицы broadcasts
+
                 cur.execute('''
                     CREATE TABLE broadcasts (
                         id SERIAL PRIMARY KEY,
@@ -110,7 +104,6 @@ def fix_database_structure():
 
 
 def init_database():
-    """Инициализация базы данных и создание таблиц"""
     try:
         conn = get_db_connection()
         if conn:
